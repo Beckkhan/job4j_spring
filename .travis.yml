@@ -10,6 +10,7 @@ services:
 before_install:
   - psql -c "ALTER USER postgres WITH PASSWORD 'password';" -U postgres
   - psql -c 'create database carwarehouse;' -U postgres
+  - psql -c 'create database storage;' -U postgres
 
 # используем режим обычного пользователя для сборки проекта.
 sudo: false
