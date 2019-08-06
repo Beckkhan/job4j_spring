@@ -1,0 +1,58 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11pt;
+    margin-left: 2em;
+    margin-right: 2em;
+}
+
+h2 {
+    color: darkgreen;
+}
+
+label {
+    float: left;
+    width: 10em;
+    margin-bottom: 0.5em;
+}
+
+input [type= "text"], input [type="password"], input [type="radio"] {
+    width: 15em;
+    margin-left: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+br {
+    clear: both;
+}
+
+#submit {
+    margin-left: 0.5em;
+    background-color: #45ffe7;
+}
+
+table{
+    border: 1px solid #464646;
+    border-collapse: collapse;
+
+}
+
+th{
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11pt;
+    border: 1px solid gray;
+    text-align: center;
+    padding: .5em;
+}
+
+td {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11pt;
+    border: 1px solid gray;
+    text-align: left;
+    padding: .5em;
+}
+
+form textarea{
+    width: 180px;
+    height: 100px;
+}

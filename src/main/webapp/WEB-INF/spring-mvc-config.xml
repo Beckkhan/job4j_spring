@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+    	http://www.springframework.org/schema/beans/spring-beans.xsd
+    	http://www.springframework.org/schema/context
+    	http://www.springframework.org/schema/context/spring-context.xsd
+    	http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    <!-- Annotation support -->
+    <mvc:annotation-driven/>
+
+    <!-- Specify where Spring should go, understand the annotations,
+     what objects are needed to create and then collect these objects in a container. -->
+    <context:component-scan base-package="ru.job4j.carwarehouse"/>
+
+    <!-- An indication of where the Spring should go and get view. -->
+    <bean id="resolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/views/" />
+        <property name="suffix" value=".jsp" />
+    </bean>
+
+    <!-- Support for resources: css, images, js, etc ... -->
+    <mvc:resources mapping="/resources/**" location="/resource/"/>
+    <mvc:default-servlet-handler/>
+
+</beans>
