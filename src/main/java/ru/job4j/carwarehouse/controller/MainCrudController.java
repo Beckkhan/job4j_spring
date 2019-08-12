@@ -8,11 +8,15 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import ru.job4j.carwarehouse.models.Car;
 import ru.job4j.carwarehouse.models.Picture;
-import ru.job4j.carwarehouse.storage.*;
+import ru.job4j.carwarehouse.service.CarServiceInterface;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -23,59 +27,50 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * @author Khan Vyacheslav (mailto: beckkhan@mail.ru)
- * @version 2.0
+ * @version 1.0
  * @since 13.08.2019
  */
 
-//@Controller
-public class MainController {
+@Controller
+public class MainCrudController {
 
-    private static final Logger LOGGER = Logger.getLogger(MainController.class);
+    private static final Logger LOGGER = Logger.getLogger(MainCrudController.class);
 
-    private final CarStore carStore = CarStore.getInstance();
+    @Autowired
+    private CarServiceInterface carService;
 
-    private final BodytypeStore bodytypeStore = BodytypeStore.getInstance();
+    private int carId = 0;
 
-    private final EngineStore engineStore = EngineStore.getInstance();
-
-    private final TransmissionStore transmissionStore = TransmissionStore.getInstance();
-
-    private final PictureStore pictureStore = PictureStore.getInstance();
-
-    private int carIdForImage = 0;
-
-
-    //@RequestMapping(value = "/", method = RequestMethod.GET)
+    @RequestMapping(value = "/", method = RequestMethod.GET)
     public String listCars(Model model) {
-        List<Car> list = carStore.getAll();
+        List<Car> list = carService.getAllCar();
         List<Picture> pictures;
-        for (Car c : list) {
-            pictures  = pictureStore.getImagesByCarId(c.getId());
-            c.setPictures(pictures);
+        for (Car car : list) {
+            pictures  = carService.getPicturesByCar(car);
+            car.setPictures(pictures);
         }
         LOGGER.info(list);
         model.addAttribute("cars", list);
         return "Cars";
     }
 
-    //@RequestMapping(value = "/addCarForm", method = RequestMethod.GET)
+    @RequestMapping(value = "/addCarForm", method = RequestMethod.GET)
     public String addCarForm(Model model) {
         Car car = new Car();
         model.addAttribute("newCar", car);
         return "AddCar";
     }
 
-    //@RequestMapping(value = "/addCar", method = RequestMethod.POST)
+    @RequestMapping(value = "/addCar", method = RequestMethod.POST)
     public String addCar(@ModelAttribute("newCar") Car car, Model model) {
-        car = carStore.constructCar(
+        car = carService.constructCar(
                 car,
                 car.getBodytype(),
                 car.getEngine(),
                 car.getTransmission()
         );
         car.setCreated(new java.sql.Date(System.currentTimeMillis()));
-        int result = carStore.add(car);
+        int result = carService.addCar(car);
         if (result > 0) {
             return "redirect:/";
         } else {
@@ -84,78 +79,77 @@ public class MainController {
         }
     }
 
-    //@RequestMapping("/getBodytype")
+    @RequestMapping("/getBodytype")
     public void getBodyTypes(HttpServletResponse resp) throws IOException {
-        List<String> bodyNames = bodytypeStore.getBodyTypes();
+        List<String> bodyNames = carService.getBodyTypes();
         ObjectMapper objectMapper = new ObjectMapper();
         String toJson = objectMapper.writeValueAsString(bodyNames);
         resp.setContentType("text/json");
         PrintWriter writer = new PrintWriter(resp.getOutputStream());
-        System.out.println(toJson);
+        LOGGER.info(toJson);
         writer.append(toJson);
         writer.flush();
     }
 
-    //@RequestMapping("/getEngine")
+    @RequestMapping("/getEngine")
     public void getEngineType(HttpServletResponse resp) throws IOException {
-        List<String> engineNames = engineStore.getEngineTypes();
+        List<String> engineNames = carService.getEngineTypes();
         ObjectMapper objectMapper = new ObjectMapper();
         String toJson = objectMapper.writeValueAsString(engineNames);
         resp.setContentType("text/json");
         PrintWriter writer = new PrintWriter(resp.getOutputStream());
-        System.out.println(toJson);
+        LOGGER.info(toJson);
         writer.append(toJson);
         writer.flush();
+
     }
 
-    //@RequestMapping("/getTransmission")
+    @RequestMapping("/getTransmission")
     public void getTransmission(HttpServletResponse resp) throws IOException {
-        List<String> transNames = transmissionStore.getTransmissionTypes();
+        List<String> transNames = carService.getTransmissionTypes();
         ObjectMapper objectMapper = new ObjectMapper();
         String toJson = objectMapper.writeValueAsString(transNames);
         resp.setContentType("text/json");
         PrintWriter writer = new PrintWriter(resp.getOutputStream());
-        System.out.println(toJson);
+        LOGGER.info(toJson);
         writer.append(toJson);
         writer.flush();
     }
 
-    //@RequestMapping("/getLocation")
+    @RequestMapping("/getLocation")
     public void getLocation(HttpServletResponse resp) throws IOException {
-        List<String> locations = carStore.getLocation();
+        List<String> locations = carService.getLocation();
         ObjectMapper objectMapper = new ObjectMapper();
         String toJson = objectMapper.writeValueAsString(locations);
         resp.setContentType("text/json");
         PrintWriter writer = new PrintWriter(resp.getOutputStream());
-        System.out.println(toJson);
+        LOGGER.info(toJson);
         writer.append(toJson);
         writer.flush();
     }
 
-    //@RequestMapping(value = "/updateDelete", method = RequestMethod.GET)
+    @RequestMapping(value = "/updateDelete", method = RequestMethod.GET)
     public void updateSoldStatus(HttpServletRequest req) {
         int id = Integer.parseInt(req.getParameter("carId"));
         boolean done = Boolean.valueOf(req.getParameter("sold"));
-        carStore.statusChange(id, done);
+        carService.statusChange(id, done);
     }
 
-    //@RequestMapping(value = "/updateDelete", method = RequestMethod.POST)
-    public String deleteCar(HttpServletRequest req, Model model) {
+    @RequestMapping(value = "/updateDelete", method = RequestMethod.POST)
+    public String deleteCar(HttpServletRequest req) {
         int id = Integer.valueOf(req.getParameter("carId"));
-        int result = carStore.delete(id);
-        if (result == 0) {
-            model.addAttribute("error", "Cannot be deleted");
-        }
+        Car car = carService.getCarById(id);
+        carService.deleteCar(car);
         return "redirect:/";
     }
 
-    //@RequestMapping(value = "/filter", method = RequestMethod.GET)
+    @RequestMapping(value = "/filter", method = RequestMethod.GET)
     public String contentFilter(HttpServletRequest req, Model model) {
         String soldStatus = req.getParameter("filterSold");
         String withPicture = req.getParameter("filterImage");
         String dateTime = req.getParameter("filterDate");
         String name = req.getParameter("filterName");
-        Date date = carStore.getById(1).getCreated();
+        Date date = carService.getCarById(1).getCreated();
         List<Car> list;
         List<Picture> pictures;
         List<Car> result = new ArrayList<>();
@@ -163,17 +157,17 @@ public class MainController {
             date = new Date(System.currentTimeMillis());
         }
         if (soldStatus != null && !name.equals("")) {
-            list = carStore.filterCarsBySoldAndName(false, name, date);
+            list = carService.filterCarsBySoldAndBrand(false, name, date);
         } else if (soldStatus != null) {
-            list = carStore.filterCarsBySold(false, date);
+            list = carService.filterCarsBySold(false, date);
         } else if (!name.equals("")) {
-            list = carStore.filterCarsByName(name, date);
+            list = carService.filterCarsByBrand(name, date);
         } else {
-            list = carStore.getAllWithData(date);
+            list = carService.getAllCarsWithData(date);
         }
 
         for (Car car : list) {
-            pictures  = pictureStore.getImagesByCarId(car.getId());
+            pictures  = carService.getPicturesByCar(car);
             car.setPictures(pictures);
         }
 
@@ -189,15 +183,15 @@ public class MainController {
         return "CarFilter";
     }
 
-    //@RequestMapping(value = "/imageUpload", method = RequestMethod.GET)
+    @RequestMapping(value = "/imageUpload", method = RequestMethod.GET)
     public String uploadImage(HttpServletRequest req, Model model) {
-        carIdForImage = Integer.valueOf(req.getParameter("carIdForImage"));
+        carId = Integer.valueOf(req.getParameter("carIdForImage"));
         return "ImageUpload";
     }
 
-    //@RequestMapping(value = "/imageUpload", method = RequestMethod.POST)
+    @RequestMapping(value = "/imageUpload", method = RequestMethod.POST)
     public String addImage(HttpServletRequest req, Model model) throws IOException {
-        Car car = carStore.getById(carIdForImage);
+        Car car = carService.getCarById(carId);
         Picture picture;
         int result = 0;
         if (ServletFileUpload.isMultipartContent(req)) {
@@ -212,7 +206,7 @@ public class MainController {
                         byte[] bytes = IOUtils.toByteArray(item.getInputStream());
                         picture = new Picture(bytes);
                         picture.setCar(car);
-                        result = pictureStore.add(picture);
+                        result = carService.addPicture(picture);
                     }
                 }
             } catch (FileUploadException e) {

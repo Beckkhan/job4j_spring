@@ -6,8 +6,8 @@ import java.util.*;
 
 /**
  * @author Khan Vyacheslav (mailto: beckkhan@mail.ru)
- * @version 1.0
- * @since 07.08.2019
+ * @version 2.0
+ * @since 13.08.2019
  */
 
 @Entity
@@ -141,7 +141,7 @@ public class Car {
         this.pictures = pictures;
     }
 
-    public void addImages(Picture picture) {
+    public void addPictures(Picture picture) {
         if (pictures == null) {
             pictures = new ArrayList<>();
         }

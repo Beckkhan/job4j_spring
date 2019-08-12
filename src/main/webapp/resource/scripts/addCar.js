@@ -17,19 +17,19 @@ function validateCarInput() {
         alert("Enter Car name");
         return false;
     } else if (body === "") {
-        alert("Choose car bodytype");
+        alert("Choose Bodytype");
         return false;
     } else if (engine === "") {
-        alert("Chose car engine");
+        alert("Chose Engine");
         return false;
     } else if (transmission === "") {
-        alert("Chose car transmission");
+        alert("Chose Transmission");
         return false;
     } else if (location === "") {
-        alert("Chose location");
+        alert("Chose Location");
         return false;
     } else if (price === "") {
-        alert("Enter car price");
+        alert("Enter Price");
         return false;
     }
     return true;
@@ -45,16 +45,15 @@ function getBodyTypes() {
             $.each(data, function (indexInArray, value) {
                 $('#body option:last').after('<option>' + value + '</option>');
             });
-
         }
     });
 }
+
 function addNewBodyType() {
     var newBody = document.getElementById("newBody").value;
     $('#body option:last').after('<option>' + newBody + '</option>');
     document.getElementById("newBody").value = "";
 }
-
 
 function getEngineTypes() {
     $.ajax({
@@ -66,7 +65,6 @@ function getEngineTypes() {
             $.each(data, function (indexInArray, value) {
                 $('#engine option:last').after('<option>' + value + '</option>');
             });
-
         }
     });
 }
@@ -76,7 +74,6 @@ function addNewEngineType() {
     $('#engine option:last').after('<option>' + newEngine + '</option>');
     document.getElementById("newEngine").value = "";
 }
-
 
 function getTransTypes() {
     $.ajax({
@@ -88,7 +85,6 @@ function getTransTypes() {
             $.each(data, function (indexInArray, value) {
                 $('#transmission option:last').after('<option>' + value + '</option>');
             });
-
         }
     });
 }
@@ -98,7 +94,6 @@ function addNewTransmission() {
     $('#transmission option:last').after('<option>' + newTransmission + '</option>');
     document.getElementById("newTransmission").value = "";
 }
-
 
 function getLocation() {
     $.ajax({
@@ -110,7 +105,6 @@ function getLocation() {
             $.each(data, function (indexInArray, value) {
                 $('#location option:last').after('<option>' + value + '</option>');
             });
-
         }
     });
 }
