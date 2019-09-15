@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<head>
+    <title>Chat</title>
+</head>
+<body>
+<br>
+<table id="display" th:each="message : ${messages}">
+    <tr>
+        <td th:text="${message.user.name}"></td>
+        <td> : </td>
+        <td th:text="${message.text}"></td>
+    </tr>
+</table>
+<br>
+<div>
+    <form th:action="@{/main}" method="post">
+        <input type="text" name="text" placeholder="Введите сообщение"/>
+        <input type="submit" value="Отправить"/>
+    </form>
+</div>
+<br>
+<form th:action="@{/logout}" method="post">
+    <input type="submit" value="Sign Out"/>
+</form>
+<br>
+<script type="text/javascript">
+
+    function clearTable() {
+        $("#display tr").not(":first").remove();
+    }
+
+    function refresh() {
+        clearTable();
+        $.ajax({
+            type: "GET",
+            url: "/main",
+            success: function(){
+                document.location = "/main";
+            }
+        });
+    }
+
+    $(document).ready(function(){
+        setInterval('refresh()', 5000);
+    });
+
+</script>
+</body>
+</html>
